@@ -1,0 +1,21 @@
+# SPDX-License-Identifier: Apache-2.0
+import /init.recovery.crypto.rc
+
+on early-init
+    mkdir /cache 0770 system cache
+    # Match stock recovery's watchdog policy before starting recovery userspace.
+    setprop persist.vendor.softdog off
+
+on init
+    setprop sys.usb.configfs 1
+    setprop sys.usb.controller musb-hdrc
+    setprop sys.usb.ffs.aio_compat 0
+
+# The generic recovery service starts during boot. Start USB in the preceding
+# fs phase so diagnostics are not delayed by TWRP's module/decryption setup.
+on fs
+    setprop sys.usb.config adb
+
+# Touch devices use Samsung's input permissions; TWRP runs as root.
+on post-fs
+    chmod 0755 /dev/input

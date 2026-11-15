@@ -1,0 +1,16 @@
+# SPDX-License-Identifier: Apache-2.0
+# Android init/libfs_mgr format: block-device mount-point fs-type mount-flags fs-manager-flags.
+# TWRP's partition UI and backup policy live in recovery/root/system/etc/twrp.fstab.
+system /system_root erofs ro wait,logical
+system_ext /system_ext erofs ro wait,logical
+vendor /vendor erofs ro wait,logical
+product /product erofs ro wait,logical
+odm /odm erofs ro wait,logical
+vendor_dlkm /vendor_dlkm erofs ro wait,logical
+/dev/block/by-name/userdata /data f2fs noatime,nosuid,nodev,discard,inlinecrypt wait,fileencryption=aes-256-xts:aes-256-cts:v2+inlinecrypt_optimized,keydirectory=/metadata/vold/metadata_encryption,metadata_encryption=aes-256-xts
+/dev/block/by-name/metadata /metadata ext4 noatime,nosuid,nodev wait
+/dev/block/by-name/cache /cache ext4 noatime,nosuid,nodev wait
+/dev/block/by-name/boot /boot emmc defaults defaults
+/dev/block/by-name/recovery /recovery emmc defaults defaults
+/dev/block/by-name/dtbo /dtbo emmc defaults defaults
+/dev/block/by-name/misc /misc emmc defaults defaults

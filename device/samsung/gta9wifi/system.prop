@@ -1,0 +1,11 @@
+# Applies to the recovery ramdisk only.
+ro.secure=0
+ro.debuggable=1
+ro.adb.secure=0
+persist.sys.usb.config=adb
+usb.vendor=04e8
+usb.product.adb=6860
+usb.product.mtpadb=6860
+ro.crypto.volume.filenames_mode=aes-256-cts
+ro.crypto.metadata_init_delete_all_keys.enabled=false
+ro.crypto.samsung_metadata_rot=true

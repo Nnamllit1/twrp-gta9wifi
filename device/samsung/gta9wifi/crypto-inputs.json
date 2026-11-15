@@ -1,0 +1,317 @@
+{
+  "schema_version": 1,
+  "model": "SM-X110",
+  "firmware": "X110XXU4CYE5",
+  "purpose": "Original Samsung recovery decryption provider inputs; staging is not runtime validation",
+  "vendor_sha256": "79de66ffd17edeaf28ef00d527ca440d2bdc079c9d660f9842c1fd58cd03532d",
+  "files": [
+    {
+      "source_path": "/bin/hw/android.hardware.gatekeeper@1.0-service",
+      "output_path": "vendor/bin/hw/android.hardware.gatekeeper@1.0-service",
+      "bytes": 11160,
+      "mode": "0755",
+      "sha256": "72d746ed823737d6f76789c15dad514a9d295f1292d22812dbb3cc781463afb9"
+    },
+    {
+      "source_path": "/bin/hw/android.hardware.security.keymint-service",
+      "output_path": "vendor/bin/hw/android.hardware.security.keymint-service",
+      "bytes": 33000,
+      "mode": "0755",
+      "sha256": "0694052c14de0948186445c94d851c8442373efcfec1a8c81fe9c808a69b2d35"
+    },
+    {
+      "source_path": "/bin/tzdaemon",
+      "output_path": "vendor/bin/tzdaemon",
+      "bytes": 84296,
+      "mode": "0755",
+      "sha256": "9583488925239c0df3c2f0e6efe9dcceacf146f6b47b8dbb8696735b53fc2fe5"
+    },
+    {
+      "source_path": "/bin/tzts_daemon",
+      "output_path": "vendor/bin/tzts_daemon",
+      "bytes": 31032,
+      "mode": "0755",
+      "sha256": "86124724d26a44f0c6bff7d25545c1df71dec50eb77cf700fb64684e573f2b52"
+    },
+    {
+      "source_path": "/lib64/hw/android.hardware.gatekeeper@1.0-impl.so",
+      "output_path": "vendor/lib64/hw/android.hardware.gatekeeper@1.0-impl.so",
+      "bytes": 15960,
+      "mode": "0644",
+      "sha256": "2a89c7ccb98eb7e841f58347b682f1741d0c2594f2dd1d2f632695dc4884b970"
+    },
+    {
+      "source_path": "/lib64/hw/gatekeeper.mt6789.so",
+      "output_path": "vendor/lib64/hw/gatekeeper.mt6789.so",
+      "bytes": 11184,
+      "mode": "0644",
+      "sha256": "fc27d329993fda753703b5201904a25e24871931028ff4dc533dcc3115e5a066"
+    },
+    {
+      "source_path": "/lib64/libgrdm.so",
+      "output_path": "vendor/lib64/libgrdm.so",
+      "bytes": 30688,
+      "mode": "0644",
+      "sha256": "fb78847444c52cae6abd207c4837c5c573b9cbb35ef74a5049b5a33fe860391d"
+    },
+    {
+      "source_path": "/lib64/libsecril-client.so",
+      "output_path": "vendor/lib64/libsecril-client.so",
+      "bytes": 40080,
+      "mode": "0644",
+      "sha256": "a1bd7dcf58cd314d59922895e612c7eb09be64da26a90933fb88f158fd1dcc3e"
+    },
+    {
+      "source_path": "/lib64/libskeymint10device.so",
+      "output_path": "vendor/lib64/libskeymint10device.so",
+      "bytes": 143104,
+      "mode": "0644",
+      "sha256": "ca795c33c6213b39b282c1e6c413e327d3d5495ad6afa43cb8d7eecf2f41dcd1"
+    },
+    {
+      "source_path": "/lib64/libskeymint_cli.so",
+      "output_path": "vendor/lib64/libskeymint_cli.so",
+      "bytes": 146112,
+      "mode": "0644",
+      "sha256": "3e19f1b850838b72a5161b8743e21af9889d732429a4616442a1adef1f1c45b0"
+    },
+    {
+      "source_path": "/lib64/libteecl.so",
+      "output_path": "vendor/lib64/libteecl.so",
+      "bytes": 55592,
+      "mode": "0644",
+      "sha256": "79efd945c8bc36d545ce5fa7b00f03df360f0e3e192b658eba8f6533e6cf75fc"
+    },
+    {
+      "source_path": "/lib64/libuuid.so",
+      "output_path": "vendor/lib64/libuuid.so",
+      "bytes": 14016,
+      "mode": "0644",
+      "sha256": "2323f5ff500e679d2a1fd8add594b6be554bcfa2860d90d1cf432873aaa3ad3b"
+    },
+    {
+      "source_path": "/lib64/vendor.samsung.hardware.keymint-V1-ndk_platform.so",
+      "output_path": "vendor/lib64/vendor.samsung.hardware.keymint-V1-ndk_platform.so",
+      "bytes": 64240,
+      "mode": "0644",
+      "sha256": "71365354394718089702e9098b034a255890d754caf1e68439fe6db95c87d4ea"
+    },
+    {
+      "source_path": "/tee/00000000-0000-0000-0000-000000010081",
+      "output_path": "vendor/tee/00000000-0000-0000-0000-000000010081",
+      "bytes": 51920,
+      "mode": "0644",
+      "sha256": "44c6c20b0a4087b5690a49ec8dd109137bd33752bb3bb72356beb2f33d521ad3"
+    },
+    {
+      "source_path": "/tee/00000000-0000-0000-0000-000000020081",
+      "output_path": "vendor/tee/00000000-0000-0000-0000-000000020081",
+      "bytes": 154184,
+      "mode": "0644",
+      "sha256": "6bfcde51ea584865664d78dc6bbbea8ebd5f580619d2a26e9ac63952355ae74b"
+    },
+    {
+      "source_path": "/tee/00000000-0000-0000-0000-000048444350",
+      "output_path": "vendor/tee/00000000-0000-0000-0000-000048444350",
+      "bytes": 171233,
+      "mode": "0644",
+      "sha256": "058bb666b74975b507ef1e5db4875a38cc28ae74d429c35e963daec8b25138d3"
+    },
+    {
+      "source_path": "/tee/00000000-0000-0000-0000-0000534b504d",
+      "output_path": "vendor/tee/00000000-0000-0000-0000-0000534b504d",
+      "bytes": 187606,
+      "mode": "0644",
+      "sha256": "b2088146d91c5caa45b56fb4db0367c9ad121daf4913264e0b0e446c5d4ed9ca"
+    },
+    {
+      "source_path": "/tee/00000000-0000-0000-0000-474154454b45",
+      "output_path": "vendor/tee/00000000-0000-0000-0000-474154454b45",
+      "bytes": 31114,
+      "mode": "0644",
+      "sha256": "27fda3c1fbd029b1f5f4b090ee65ee4ab4da8771231cc9718c2ecaa990e46cda"
+    },
+    {
+      "source_path": "/tee/00000000-0000-0000-0000-496343475244",
+      "output_path": "vendor/tee/00000000-0000-0000-0000-496343475244",
+      "bytes": 96562,
+      "mode": "0644",
+      "sha256": "813e247827b4407f7e58a1dee5ccc40491188158eb4c6481ace80c2f3b9e5835"
+    },
+    {
+      "source_path": "/tee/00000000-0000-0000-0000-4b45594d5354",
+      "output_path": "vendor/tee/00000000-0000-0000-0000-4b45594d5354",
+      "bytes": 551304,
+      "mode": "0644",
+      "sha256": "355b136153d8c7dd6967f71b4cdb3b02ffd6f2148ec9de34a7c61da3ebb7367b"
+    },
+    {
+      "source_path": "/tee/00000000-0000-0000-0000-53454d655345",
+      "output_path": "vendor/tee/00000000-0000-0000-0000-53454d655345",
+      "bytes": 421886,
+      "mode": "0644",
+      "sha256": "9f38704d73bd6b04840fd8e109e695186e56d239bc0517f6840c1fa81492fa2c"
+    },
+    {
+      "source_path": "/tee/00000000-0000-0000-0000-54496473706c",
+      "output_path": "vendor/tee/00000000-0000-0000-0000-54496473706c",
+      "bytes": 170528,
+      "mode": "0644",
+      "sha256": "da44bacb87f375ac908c0660dfca0ae8127722e2249e5eae8a88fb2acad7a60a"
+    },
+    {
+      "source_path": "/tee/00000000-0000-0000-0000-544974684c6c",
+      "output_path": "vendor/tee/00000000-0000-0000-0000-544974684c6c",
+      "bytes": 60072,
+      "mode": "0644",
+      "sha256": "c6a75205b44ab196a1e7d16c325692198eeccd08732d2c32fb0c96ab972d0c27"
+    },
+    {
+      "source_path": "/tee/00000000-0000-0000-0000-564c544b5052",
+      "output_path": "vendor/tee/00000000-0000-0000-0000-564c544b5052",
+      "bytes": 182520,
+      "mode": "0644",
+      "sha256": "863049dc916a68a9d6398790b68011b0616a06e0633b2c19a8fd415f6ed1e56c"
+    },
+    {
+      "source_path": "/tee/00000000-0000-0000-0000-6b6e78677564",
+      "output_path": "vendor/tee/00000000-0000-0000-0000-6b6e78677564",
+      "bytes": 174576,
+      "mode": "0644",
+      "sha256": "a77e8a65dd7dcf9de6881a4fb6a7e12a7e293d6b321cbd399edf4e6066e74814"
+    },
+    {
+      "source_path": "/tee/00000000-0000-0000-0000-6d73745f5441",
+      "output_path": "vendor/tee/00000000-0000-0000-0000-6d73745f5441",
+      "bytes": 18798,
+      "mode": "0644",
+      "sha256": "af9bae3c4ac7243ad8f5a7d302016b5e8b0ade2d4b48b40051878cb916039244"
+    },
+    {
+      "source_path": "/tee/00000000-4875-4171-496e-466163656871",
+      "output_path": "vendor/tee/00000000-4875-4171-496e-466163656871",
+      "bytes": 3541424,
+      "mode": "0644",
+      "sha256": "80a9723c35060b2ff373b840ae20aeb6a7c5dff75316bb8d391c1960eac22aa7"
+    },
+    {
+      "source_path": "/tee/00000000-4875-4171-496e-4772446d4871",
+      "output_path": "vendor/tee/00000000-4875-4171-496e-4772446d4871",
+      "bytes": 22919,
+      "mode": "0644",
+      "sha256": "d171aa6581ce308f372d9f97f49e1792a6ffc8ca28c2280a935e68b72d0568c2"
+    },
+    {
+      "source_path": "/tee/00000000-4d54-4b5f-4246-444150437461",
+      "output_path": "vendor/tee/00000000-4d54-4b5f-4246-444150437461",
+      "bytes": 31079,
+      "mode": "0644",
+      "sha256": "45771a00c82ed26d9b9c0968154a73409142f4653935d24745032ecf898f738e"
+    },
+    {
+      "source_path": "/tee/00000000-4d54-4b5f-4246-44524d4b5052",
+      "output_path": "vendor/tee/00000000-4d54-4b5f-4246-44524d4b5052",
+      "bytes": 92950,
+      "mode": "0644",
+      "sha256": "fdaee4b47db102a95fdbf0e7790100bb759d1fc188297d1b5c3fe54d17c6c9d8"
+    },
+    {
+      "source_path": "/tee/00000000-4d54-4b5f-4246-534d454d5441",
+      "output_path": "vendor/tee/00000000-4d54-4b5f-4246-534d454d5441",
+      "bytes": 39270,
+      "mode": "0644",
+      "sha256": "5f05ef90641030f19b871cb4a0be83539e45e1fe500a976beebeb66b37b7824f"
+    },
+    {
+      "source_path": "/tee/00000000-4d54-4b5f-4246-57564e544100",
+      "output_path": "vendor/tee/00000000-4d54-4b5f-4246-57564e544100",
+      "bytes": 302487,
+      "mode": "0644",
+      "sha256": "49feda15b1eab228f3481e167251da884095732a2f32e87fa542e564194a1092"
+    },
+    {
+      "source_path": "/tee/00000000-4d54-4b5f-4246-72706d627461",
+      "output_path": "vendor/tee/00000000-4d54-4b5f-4246-72706d627461",
+      "bytes": 36152,
+      "mode": "0644",
+      "sha256": "c9d9fb8f2ea4f0236937d71e8df2de75f5bbe57103b1357cf33cd8f3fb60beeb"
+    },
+    {
+      "source_path": "/tee/driver/00000000-0000-0000-0000-494363447256",
+      "output_path": "vendor/tee/driver/00000000-0000-0000-0000-494363447256",
+      "bytes": 23106,
+      "mode": "0644",
+      "sha256": "bed79c9e494000bfe490edc376021fbb2a9ce2b3894805ac660be6305762fde9"
+    },
+    {
+      "source_path": "/tee/driver/00000000-0000-0000-0000-4d53546d7374",
+      "output_path": "vendor/tee/driver/00000000-0000-0000-0000-4d53546d7374",
+      "bytes": 27210,
+      "mode": "0644",
+      "sha256": "4088f6adb85e79aef9172978e870e2289b2e735065c405b6c8deb6bd5c58c7e3"
+    },
+    {
+      "source_path": "/tee/driver/00000000-0000-0000-0000-564c544b4456",
+      "output_path": "vendor/tee/driver/00000000-0000-0000-0000-564c544b4456",
+      "bytes": 23121,
+      "mode": "0644",
+      "sha256": "4a5dfee5e1f284115eedf290047a71d5c14867f4b806c2b385256de9dabe2bae"
+    },
+    {
+      "source_path": "/tee/driver/00000000-4875-4171-496e-487146436476",
+      "output_path": "vendor/tee/driver/00000000-4875-4171-496e-487146436476",
+      "bytes": 31884,
+      "mode": "0644",
+      "sha256": "4aa79564a454d86d495e6ef50e9005ea3645d1ed71beb2ea4f6ced0f85fbb632"
+    },
+    {
+      "source_path": "/tee/driver/00000000-4d54-4b5f-4246-444150436472",
+      "output_path": "vendor/tee/driver/00000000-4d54-4b5f-4246-444150436472",
+      "bytes": 31606,
+      "mode": "0644",
+      "sha256": "9848a3e73812964f30fe6dc04d785ae07d696160982f45dea316cc0543fcb24a"
+    },
+    {
+      "source_path": "/tee/driver/00000000-4d54-4b5f-4246-445248444350",
+      "output_path": "vendor/tee/driver/00000000-4d54-4b5f-4246-445248444350",
+      "bytes": 39820,
+      "mode": "0644",
+      "sha256": "ce5ce7f3e0dce127436bf62ea61aa7dd1aeb755c5a91becefbea5649c5fcbc9d"
+    },
+    {
+      "source_path": "/tee/driver/00000000-4d54-4b5f-4246-44524d4b5044",
+      "output_path": "vendor/tee/driver/00000000-4d54-4b5f-4246-44524d4b5044",
+      "bytes": 31628,
+      "mode": "0644",
+      "sha256": "5433938aca101e1a067837cd3cbb502dee4a95dc71b3c14bf067abfa1fb0c92b"
+    },
+    {
+      "source_path": "/tee/driver/00000000-4d54-4b5f-4246-534d45647276",
+      "output_path": "vendor/tee/driver/00000000-4d54-4b5f-4246-534d45647276",
+      "bytes": 56200,
+      "mode": "0644",
+      "sha256": "c04d8498240ef2f0aa582f817c4485dd89df10ffcafe03b5723677770ee6f81d"
+    },
+    {
+      "source_path": "/tee/driver/00000000-4d54-4b5f-4246-57564e647276",
+      "output_path": "vendor/tee/driver/00000000-4d54-4b5f-4246-57564e647276",
+      "bytes": 35722,
+      "mode": "0644",
+      "sha256": "e01fa149edeac21016361d7641c832a62f9fbc5ec52d72823c7aedc25b9f63b7"
+    },
+    {
+      "source_path": "/tee/driver/18d9f073-18a5-4ade-9def-875e07f7f293_",
+      "output_path": "vendor/tee/driver/18d9f073-18a5-4ade-9def-875e07f7f293_",
+      "bytes": 7533,
+      "mode": "0644",
+      "sha256": "53ee5d92e52cee6425fc2110c659e633c2e8e75758b628afc2fa98c30140b210"
+    },
+    {
+      "source_path": "/tee/tui/resolution_common/ID00000100",
+      "output_path": "vendor/tee/tui/resolution_common/ID00000100",
+      "bytes": 316079,
+      "mode": "0644",
+      "sha256": "ded3044ce24e20028e5b2f30392e765d6abe18f955bcf4d1ba3e8a3fe2d850ff"
+    }
+  ]
+}

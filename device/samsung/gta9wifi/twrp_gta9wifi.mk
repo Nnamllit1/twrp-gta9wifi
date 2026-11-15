@@ -1,0 +1,10 @@
+# SPDX-License-Identifier: Apache-2.0
+$(call inherit-product, $(SRC_TARGET_DIR)/product/core_64_bit_only.mk)
+$(call inherit-product, $(SRC_TARGET_DIR)/product/base.mk)
+$(call inherit-product, vendor/twrp/config/common.mk)
+$(call inherit-product, device/samsung/gta9wifi/device.mk)
+PRODUCT_DEVICE := gta9wifi
+PRODUCT_NAME := twrp_gta9wifi
+PRODUCT_BRAND := samsung
+PRODUCT_MODEL := SM-X110
+PRODUCT_MANUFACTURER := samsung

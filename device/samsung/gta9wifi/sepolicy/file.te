@@ -1,0 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
+# Original CYE5 trusted-storage file type. Without this declaration, existing
+# raw labels map to unlabeled and new provider files inherit that invalid SID.
+type tee_efs_file, file_type;

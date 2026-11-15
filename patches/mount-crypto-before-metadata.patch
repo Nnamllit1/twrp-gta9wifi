@@ -1,0 +1,17 @@
+diff --git a/partitionmanager.cpp b/partitionmanager.cpp
+--- a/partitionmanager.cpp
++++ b/partitionmanager.cpp
+@@ -587,6 +587,13 @@ void TWPartitionManager::Decrypt_Data() {
+ 	#ifdef TW_INCLUDE_CRYPTO
+ 	TWPartition* Decrypt_Data = Find_Partition_By_Path("/data");
+ 	if (Decrypt_Data && Decrypt_Data->Is_Encrypted && !Decrypt_Data->Is_Decrypted) {
++		// Metadata encryption needs HAL manifests before /data can be mounted.
++		// Decrypt_Device mounts these later for FBE, which is too late here.
++		for (auto* partition : Partitions) {
++			if (partition->Mount_To_Decrypt && !partition->Mount(false)) {
++				LOGINFO("Crypto prerequisite mount unavailable: %s\n", partition->Mount_Point.c_str());
++			}
++		}
+ 		Set_Crypto_State();
+ 		TWPartition* Key_Directory_Partition = Find_Partition_By_Path(Decrypt_Data->Key_Directory);
+ 		if (Key_Directory_Partition != nullptr)

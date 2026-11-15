@@ -1,0 +1,45 @@
+// Host-only validation tool. This module is not installed in recovery.
+cc_binary_host {
+    name: "gta9wifi_fstab_check",
+    srcs: ["fstab_check.cpp"],
+    static_libs: ["libfstab"],
+    shared_libs: ["libbase", "liblog"],
+    cflags: ["-Wall", "-Wextra", "-Werror"],
+}
+
+// Optional read-only device diagnostic, not listed in PRODUCT_PACKAGES.
+cc_binary {
+    name: "gta9wifi_metadata_key_probe",
+    srcs: ["metadata_key_probe.cpp"],
+    shared_libs: [
+        "android.hardware.security.keymint-V1-ndk_platform",
+        "android.system.keystore2-V1-ndk_platform",
+        "libbinder_ndk", "libcrypto", "libbase", "liblog",
+    ],
+    cflags: ["-Wall", "-Wextra", "-Werror", "-Wno-deprecated-declarations"],
+}
+
+cc_binary {
+    name: "gta9wifi_keystore_launcher",
+    srcs: ["keystore_launcher.cpp"],
+    shared_libs: ["libbase", "liblog"],
+    cflags: ["-Wall", "-Wextra", "-Werror"],
+}
+
+cc_binary {
+    name: "gta9wifi_keymint_self_test",
+    srcs: ["keymint_self_test.cpp"],
+    shared_libs: [
+        "android.hardware.security.keymint-V1-ndk_platform",
+        "libbinder_ndk", "libcrypto", "libbase", "liblog",
+    ],
+    cflags: ["-Wall", "-Wextra", "-Werror"],
+}
+
+// Optional RAM-only setup diagnostic; not installed in recovery.
+cc_binary {
+    name: "gta9wifi_fscrypt_keyring",
+    srcs: ["fscrypt_keyring.cpp"],
+    shared_libs: ["libbase", "liblog"],
+    cflags: ["-Wall", "-Wextra", "-Werror"],
+}

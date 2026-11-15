@@ -1,0 +1,14 @@
+diff --git a/twrp.cpp b/twrp.cpp
+--- a/twrp.cpp
++++ b/twrp.cpp
+@@ -449,7 +449,9 @@ int main(int argc, char **argv) {
+ 			if (cap) {
+ 				fgets(cap_s, 2, cap);
+ 				fclose(cap);
+-				if (cap_s[0] == 'C')
++				// Match GetBatteryInfo: a full battery on external power is
++				// still shown with the charger indicator.
++				if (cap_s[0] == 'C' || cap_s[0] == 'F')
+ 					charging = '+';
+ 				else
+ 					charging = ' ';

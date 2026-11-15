@@ -1,0 +1,56 @@
+#!/sbin/sh
+# Generated recovery-only updater. No automatic reboot or other partition write.
+set -eu
+OUTFD=${2:-}
+ZIPFILE=${3:-}
+case "$OUTFD" in ''|*[!0-9]*) echo 'Invalid updater output descriptor' >&2; exit 1;; esac
+ui_print() {
+    # Android mksh rejects >&28, while TWRP commonly supplies a high pipe FD.
+    # Single-digit descriptors also support ADB's non-reopenable output socket.
+    case "$OUTFD" in
+        [0-9]) printf 'ui_print %s\nui_print\n' "$*" >&"$OUTFD";;
+        *) printf 'ui_print %s\nui_print\n' "$*" >"/proc/self/fd/$OUTFD";;
+    esac
+}
+abort() { ui_print "ERROR: $*"; exit 1; }
+test "$(id -u)" = 0 || abort 'Root recovery is required'
+test "$(getprop ro.twrp.boot)" = 1 || abort 'Run from TWRP recovery'
+test "$(getprop ro.product.model)" = SM-X110 || abort 'This package is for SM-X110 only'
+test "$(getprop ro.bootloader)" = X110XXU4CYE5 || abort 'This package requires the retained CYE5 loader'
+test -f "$ZIPFILE" || abort 'Install ZIP is unavailable'
+BLOCK=/dev/block/by-name/recovery
+test -b "$BLOCK" || abort 'Recovery block device is missing'
+test "$(blockdev --getsize64 "$BLOCK")" = 83886080 || abort 'Recovery partition size differs'
+RECOVERY_REAL=$(readlink -f "$BLOCK")
+case "$RECOVERY_REAL" in /dev/block/*) ;; *) abort 'Invalid recovery alias';; esac
+for protected in boot super userdata metadata efs sec_efs dtbo vbmeta vbmeta_system; do
+    if test -e "/dev/block/by-name/$protected"; then
+        test "$RECOVERY_REAL" != "$(readlink -f "/dev/block/by-name/$protected")" || abort 'Recovery alias overlaps another partition'
+    fi
+done
+TMPDIR=$(mktemp -d /tmp/twrp-recovery-update.XXXXXX) || abort 'Cannot allocate recovery RAM staging'
+cleanup() { rm -f "$TMPDIR/recovery.img"; rmdir "$TMPDIR"; }
+trap cleanup EXIT
+trap 'exit 1' HUP INT TERM
+IMG=$TMPDIR/recovery.img
+ui_print 'Checking SM-X110 TWRP @VERSION@ recovery image...'
+unzip -p "$ZIPFILE" recovery.img >"$IMG" || abort 'Image extraction failed'
+test "$(wc -c <"$IMG" | tr -d ' ')" = 83886080 || abort 'Incorrect image length'
+EXPECTED=@IMAGE_SHA256@
+ACTUAL=$(sha256sum "$IMG"); ACTUAL=${ACTUAL%% *}
+test "$ACTUAL" = "$EXPECTED" || abort 'Image SHA-256 mismatch'
+if test "${TWRP_RECOVERY_VERIFY_ONLY:-0}" = 1; then
+    ui_print 'Verification passed. Verify-only mode: no partition was written.'
+    exit 0
+fi
+CURRENT=$(sha256sum "$BLOCK"); CURRENT=${CURRENT%% *}
+if test "$CURRENT" = "$EXPECTED"; then
+    ui_print 'This exact recovery is already installed.'
+    exit 0
+fi
+ui_print 'Writing recovery only. Keep this session open until verification finishes.'
+dd if="$IMG" of="$BLOCK" bs=1048576 conv=fsync || abort 'Recovery write failed; keep TWRP open and retry'
+sync
+READBACK=$(sha256sum "$BLOCK"); READBACK=${READBACK%% *}
+test "$READBACK" = "$EXPECTED" || abort 'Recovery readback failed; keep TWRP open and retry'
+ui_print 'Recovery installed and readback verified. Reboot Recovery to test it.'

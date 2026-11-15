@@ -1,0 +1,244 @@
+diff --git a/libs/binder/Parcel.cpp b/libs/binder/Parcel.cpp
+index 617708f..2709399 100644
+--- a/libs/binder/Parcel.cpp
++++ b/libs/binder/Parcel.cpp
+@@ -15,6 +15,9 @@
+  */
+ 
+ #define LOG_TAG "Parcel"
++#include <binder/Status.h>
++#include <cutils/trace.h>
++
+ //#define LOG_NDEBUG 0
+ 
+ #include <errno.h>
+@@ -2588,3 +2591,26 @@ void Parcel::Blob::clear() {
+ }
+ 
+ } // namespace android
++
++// AOSP API33 compatibility, without changing Parcel layout or wire encoding.
++namespace android {
++binder::Status Parcel::enforceNoDataAvail() const {
++    const auto n = dataAvail();
++    if (n == 0) {
++        return binder::Status::ok();
++    }
++    return binder::Status::
++            fromExceptionCode(binder::Status::Exception::EX_BAD_PARCELABLE,
++                              String8::format("Parcel data not fully consumed, unread size: %zu",
++                                              n));
++}
++}
++
++namespace android { namespace binder { namespace os {
++__attribute__((visibility("default"))) void trace_begin(uint64_t tag, const char* name) {
++    atrace_begin(tag, name);
++}
++__attribute__((visibility("default"))) void trace_end(uint64_t tag) {
++    atrace_end(tag);
++}
++}}}
+diff --git a/libs/binder/Status.cpp b/libs/binder/Status.cpp
+index b5a078c..547422d 100644
+--- a/libs/binder/Status.cpp
++++ b/libs/binder/Status.cpp
+@@ -247,3 +247,11 @@ String8 Status::toString8() const {
+ 
+ }  // namespace binder
+ }  // namespace android
++
++namespace android { namespace binder {
++status_t Status::writeOverParcel(Parcel* parcel) const {
++    parcel->setDataSize(0);
++    parcel->setDataPosition(0);
++    return writeToParcel(parcel);
++}
++}}
+diff --git a/libs/binder/include/binder/Parcel.h b/libs/binder/include/binder/Parcel.h
+index 5aaaa0c..242b814 100644
+--- a/libs/binder/include/binder/Parcel.h
++++ b/libs/binder/include/binder/Parcel.h
+@@ -44,6 +44,7 @@ struct flat_binder_object;
+ 
+ // ---------------------------------------------------------------------------
+ namespace android {
++namespace binder { class Status; }
+ 
+ template <typename T> class Flattenable;
+ template <typename T> class LightFlattenable;
+@@ -68,6 +69,7 @@ public:
+     const uint8_t*      data() const;
+     size_t              dataSize() const;
+     size_t              dataAvail() const;
++    binder::Status      enforceNoDataAvail() const;
+     size_t              dataPosition() const;
+     size_t              dataCapacity() const;
+ 
+diff --git a/libs/binder/include/binder/Status.h b/libs/binder/include/binder/Status.h
+index aaafa36..e4cabc5 100644
+--- a/libs/binder/include/binder/Status.h
++++ b/libs/binder/include/binder/Status.h
+@@ -116,6 +116,7 @@ public:
+     // is not the logic which will provide/interpret the data here.
+     status_t readFromParcel(const Parcel& parcel);
+     status_t writeToParcel(Parcel* parcel) const;
++    status_t writeOverParcel(Parcel* parcel) const;
+ 
+     // Set one of the pre-defined exception types defined above.
+     void setException(int32_t ex, const String8& message);
+diff --git a/libs/binder/libbinder.arm64.map b/libs/binder/libbinder.arm64.map
+index 1d3da4c..ac4f07d 100644
+--- a/libs/binder/libbinder.arm64.map
++++ b/libs/binder/libbinder.arm64.map
+@@ -1,6 +1,10 @@
+ # b/190148312: Populate with correct list of ABI symbols
+ LIBBINDER {
+   global:
++    _ZNK7android6Parcel18enforceNoDataAvailEv;
++    _ZNK7android6binder6Status15writeOverParcelEPNS_6ParcelE;
++    _ZN7android6binder2os11trace_beginEmPKc;
++    _ZN7android6binder2os9trace_endEm;
+     getBinderKernelReferences;
+     kDefaultDriver;
+     _ZN7android10AllocationC1ERKNS_2spINS_12MemoryDealerEEERKNS1_INS_11IMemoryHeapEEElm;
+diff --git a/libs/binder/ndk/ibinder.cpp b/libs/binder/ndk/ibinder.cpp
+index 1dcb41b..ef4e665 100644
+--- a/libs/binder/ndk/ibinder.cpp
++++ b/libs/binder/ndk/ibinder.cpp
+@@ -362,6 +362,12 @@ const char* AIBinder_Class_getDescriptor(const AIBinder_Class* clazz) {
+     return clazz->getInterfaceDescriptorUtf8();
+ }
+ 
++AIBinder_DeathRecipient::TransferDeathRecipient::~TransferDeathRecipient() {
++    if (mOnUnlinked != nullptr) {
++        mOnUnlinked(mCookie);
++    }
++}
++
+ void AIBinder_DeathRecipient::TransferDeathRecipient::binderDied(const wp<IBinder>& who) {
+     CHECK(who == mWho) << who.unsafe_get() << "(" << who.get_refs() << ") vs " << mWho.unsafe_get()
+                        << " (" << mWho.get_refs() << ")";
+@@ -383,7 +389,7 @@ void AIBinder_DeathRecipient::TransferDeathRecipient::binderDied(const wp<IBinde
+ }
+ 
+ AIBinder_DeathRecipient::AIBinder_DeathRecipient(AIBinder_DeathRecipient_onBinderDied onDied)
+-    : mOnDied(onDied) {
++    : mOnDied(onDied), mOnUnlinked(nullptr) {
+     CHECK(onDied != nullptr);
+ }
+ 
+@@ -401,10 +407,12 @@ binder_status_t AIBinder_DeathRecipient::linkToDeath(const sp<IBinder>& binder,
+     std::lock_guard<std::mutex> l(mDeathRecipientsMutex);
+ 
+     sp<TransferDeathRecipient> recipient =
+-            new TransferDeathRecipient(binder, cookie, this, mOnDied);
++            new TransferDeathRecipient(binder, cookie, this, mOnDied, mOnUnlinked);
+ 
+     status_t status = binder->linkToDeath(recipient, cookie, 0 /*flags*/);
+     if (status != STATUS_OK) {
++        // When we failed to link, the destructor of TransferDeathRecipient runs here, which
++        // ensures that mOnUnlinked is called before we return with an error from this method.
+         return PruneStatusT(status);
+     }
+ 
+@@ -437,6 +445,10 @@ binder_status_t AIBinder_DeathRecipient::unlinkToDeath(const sp<IBinder>& binder
+     return STATUS_NAME_NOT_FOUND;
+ }
+ 
++void AIBinder_DeathRecipient::setOnUnlinked(AIBinder_DeathRecipient_onBinderUnlinked onUnlinked) {
++    mOnUnlinked = onUnlinked;
++}
++
+ // start of C-API methods
+ 
+ AIBinder* AIBinder_new(const AIBinder_Class* clazz, void* args) {
+@@ -675,6 +687,15 @@ AIBinder_DeathRecipient* AIBinder_DeathRecipient_new(
+     return ret;
+ }
+ 
++void AIBinder_DeathRecipient_setOnUnlinked(AIBinder_DeathRecipient* recipient,
++                                           AIBinder_DeathRecipient_onBinderUnlinked onUnlinked) {
++    if (recipient == nullptr) {
++        return;
++    }
++
++    recipient->setOnUnlinked(onUnlinked);
++}
++
+ void AIBinder_DeathRecipient_delete(AIBinder_DeathRecipient* recipient) {
+     if (recipient == nullptr) {
+         return;
+diff --git a/libs/binder/ndk/ibinder_internal.h b/libs/binder/ndk/ibinder_internal.h
+index 6824306..842f7f0 100644
+--- a/libs/binder/ndk/ibinder_internal.h
++++ b/libs/binder/ndk/ibinder_internal.h
+@@ -144,8 +144,14 @@ struct AIBinder_DeathRecipient : ::android::RefBase {
+     struct TransferDeathRecipient : ::android::IBinder::DeathRecipient {
+         TransferDeathRecipient(const ::android::wp<::android::IBinder>& who, void* cookie,
+                                const ::android::wp<AIBinder_DeathRecipient>& parentRecipient,
+-                               const AIBinder_DeathRecipient_onBinderDied onDied)
+-            : mWho(who), mCookie(cookie), mParentRecipient(parentRecipient), mOnDied(onDied) {}
++                               const AIBinder_DeathRecipient_onBinderDied onDied,
++                               const AIBinder_DeathRecipient_onBinderUnlinked onUnlinked)
++            : mWho(who),
++              mCookie(cookie),
++              mParentRecipient(parentRecipient),
++              mOnDied(onDied),
++              mOnUnlinked(onUnlinked) {}
++        ~TransferDeathRecipient();
+ 
+         void binderDied(const ::android::wp<::android::IBinder>& who) override;
+ 
+@@ -161,11 +167,13 @@ struct AIBinder_DeathRecipient : ::android::RefBase {
+         // This is kept separately from AIBinder_DeathRecipient in case the death recipient is
+         // deleted while the death notification is fired
+         const AIBinder_DeathRecipient_onBinderDied mOnDied;
++        const AIBinder_DeathRecipient_onBinderUnlinked mOnUnlinked;
+     };
+ 
+     explicit AIBinder_DeathRecipient(AIBinder_DeathRecipient_onBinderDied onDied);
+     binder_status_t linkToDeath(const ::android::sp<::android::IBinder>&, void* cookie);
+     binder_status_t unlinkToDeath(const ::android::sp<::android::IBinder>& binder, void* cookie);
++    void setOnUnlinked(AIBinder_DeathRecipient_onBinderUnlinked onUnlinked);
+ 
+    private:
+     // When the user of this API deletes a Bp object but not the death recipient, the
+@@ -176,4 +184,5 @@ struct AIBinder_DeathRecipient : ::android::RefBase {
+     std::mutex mDeathRecipientsMutex;
+     std::vector<::android::sp<TransferDeathRecipient>> mDeathRecipients;
+     AIBinder_DeathRecipient_onBinderDied mOnDied;
++    AIBinder_DeathRecipient_onBinderUnlinked mOnUnlinked;
+ };
+diff --git a/libs/binder/ndk/include_ndk/android/binder_ibinder.h b/libs/binder/ndk/include_ndk/android/binder_ibinder.h
+index 78f2d3a..12f55f1 100644
+--- a/libs/binder/ndk/include_ndk/android/binder_ibinder.h
++++ b/libs/binder/ndk/include_ndk/android/binder_ibinder.h
+@@ -572,6 +572,11 @@ __attribute__((warn_unused_result)) AIBinder_DeathRecipient* AIBinder_DeathRecip
+  *
+  * \param recipient the binder to delete (previously created with AIBinder_DeathRecipient_new).
+  */
++// AOSP API33 backport for the isolated matched-OS recovery crypto service.
++typedef void (*AIBinder_DeathRecipient_onBinderUnlinked)(void* cookie);
++void AIBinder_DeathRecipient_setOnUnlinked(AIBinder_DeathRecipient* recipient,
++                                        AIBinder_DeathRecipient_onBinderUnlinked onUnlinked);
++
+ void AIBinder_DeathRecipient_delete(AIBinder_DeathRecipient* recipient) __INTRODUCED_IN(29);
+ 
+ /**
+diff --git a/libs/binder/ndk/libbinder_ndk.map.txt b/libs/binder/ndk/libbinder_ndk.map.txt
+index 7d4b82e..6cac6e9 100644
+--- a/libs/binder/ndk/libbinder_ndk.map.txt
++++ b/libs/binder/ndk/libbinder_ndk.map.txt
+@@ -141,6 +141,11 @@ LIBBINDER_NDK31 { # introduced=31
+     AParcel_reset;
+ };
+ 
++LIBBINDER_NDK33 { # introduced=33
++  global:
++    AIBinder_DeathRecipient_setOnUnlinked;
++};
++
+ LIBBINDER_NDK_PLATFORM {
+   global:
+     AParcel_getAllowFds;

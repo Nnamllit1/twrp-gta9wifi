@@ -1,0 +1,16 @@
+# TWRP recovery fstab: paths are SM-X110 partition names, not sector guesses.
+/system_root erofs /dev/block/mapper/system flags=logical;fsflags=ro;display="System";backup=1;wipeingui
+/system_ext erofs /dev/block/mapper/system_ext flags=logical;fsflags=ro;display="System Ext";backup=1
+/vendor erofs /dev/block/mapper/vendor flags=logical;fsflags=ro;mounttodecrypt;display="Vendor";backup=1
+/product erofs /dev/block/mapper/product flags=logical;fsflags=ro;display="Product";backup=1
+/odm erofs /dev/block/mapper/odm flags=logical;fsflags=ro;mounttodecrypt;display="ODM";backup=1
+/vendor_dlkm erofs /dev/block/mapper/vendor_dlkm flags=logical;fsflags=ro;display="Vendor DLKM";backup=1
+/data f2fs /dev/block/by-name/userdata flags=fileencryption=aes-256-xts:aes-256-cts:v2+inlinecrypt_optimized;keydirectory=/metadata/vold/metadata_encryption;metadata_encryption=aes-256-xts;fsflags=noatime,nosuid,nodev,discard,inlinecrypt;backup=1
+/metadata ext4 /dev/block/by-name/metadata flags=display="Metadata";fsflags=noatime,nosuid,nodev
+/cache ext4 /dev/block/by-name/cache flags=display="Cache";backup=1
+/boot emmc /dev/block/by-name/boot flags=display="Boot";backup=1
+/recovery emmc /dev/block/by-name/recovery flags=display="Recovery";backup=1
+/dtbo emmc /dev/block/by-name/dtbo flags=display="DTBO";backup=1
+/external_sd auto /dev/block/mmcblk1p1 /dev/block/mmcblk1 flags=display="MicroSD";storage;removable;wipeingui;backup=0
+# UFS uses sd* names too. Add USB OTG only after USB-parent-aware discovery;
+# an unqualified /dev/block/sda fallback could refer to internal UFS storage.

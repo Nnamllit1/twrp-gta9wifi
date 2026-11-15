@@ -1,0 +1,3 @@
+# Original CYE5 vendor rule and the root-private bind source used in recovery.
+/mnt/vendor/efs/tee(/.*)? u:object_r:tee_efs_file:s0
+/tmp/gta9wifi-trusted-storage/efs/tee(/.*)? u:object_r:tee_efs_file:s0

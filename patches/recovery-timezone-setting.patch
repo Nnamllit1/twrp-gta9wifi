@@ -1,0 +1,11 @@
+--- a/data.cpp
++++ b/data.cpp
+@@ -437,6 +437,8 @@
+ #endif
+ 	if (varName == "tw_storage_path") {
+ 		SetBackupFolder();
++	} else if (varName == TW_TIME_ZONE_VAR) {
++		update_tz_environment_variables();
+ 	}
+ 	gui_notifyVarChange(varName.c_str(), value.c_str());
+ 	return 0;

@@ -1,0 +1,69 @@
+#!/system/bin/sh
+# Recovery-only CYE5 profile. No provisioning, formatting or key-file copying.
+set -eu
+fail() { echo "Recovery crypto setup: $*" >&2; setprop gta9wifi.crypto.error "$1"; exit 1; }
+test "$(getprop ro.product.model)" = SM-X110 || fail wrong_model
+test "$(getprop ro.bootloader)" = X110XXU4CYE5 || fail wrong_loader
+test "$(getprop ro.twrp.boot)" = 1 || fail not_recovery
+test "$(getprop ro.build.version.security_patch)" = 2025-04-01 || fail wrong_patch
+test -b /dev/block/by-name/efs || fail missing_efs
+# Gatekeeper must persist its authentication-attempt counter. Mount the real
+# filesystem with its normal journal, expose its root read-only, and expose
+# only the existing TEE subtree read/write. The backing view is root-private
+# under tmpfs; no trust-store contents are copied or manually provisioned.
+grep -q '^tmpfs /tmp tmpfs ' /proc/mounts || fail missing_tmpfs
+trusted=/tmp/gta9wifi-trusted-storage
+mkdir -p /mnt/vendor/efs
+if ! grep -q " $trusted/efs ext4 rw," /proc/mounts; then
+    ! grep -q ' /mnt/vendor/efs ' /proc/mounts || fail unexpected_efs_mount
+    test ! -L "$trusted" || fail linked_trusted_backing
+    mkdir -p "$trusted"
+    chown root:root "$trusted"
+    chmod 0700 "$trusted"
+    mkdir -p "$trusted/efs"
+    mount -t ext4 -o rw,nosuid,nodev,noexec,noatime /dev/block/by-name/efs "$trusted/efs" || fail trusted_backing_mount
+    test -d "$trusted/efs/tee" || fail missing_existing_trusted_storage
+    mount --bind "$trusted/efs" /mnt/vendor/efs || fail efs_bind
+    mount -o remount,bind,ro,nosuid,nodev,noexec,noatime /mnt/vendor/efs || fail efs_readonly_bind
+    mount --bind "$trusted/efs/tee" /mnt/vendor/efs/tee || fail tee_bind
+    mount -o remount,bind,rw,nosuid,nodev,noexec,noatime /mnt/vendor/efs/tee || fail tee_writable_bind
+fi
+grep -q " $trusted/efs ext4 rw," /proc/mounts || fail trusted_backing_not_writable
+grep -q ' /mnt/vendor/efs ext4 ro,' /proc/mounts || fail efs_not_readonly
+grep -q ' /mnt/vendor/efs/tee ext4 rw,' /proc/mounts || fail tee_not_writable
+test "$(stat -c '%u:%a' "$trusted")" = 0:700 || fail trusted_backing_not_private
+# Older development recoveries could create unmapped/unlabeled TEE files.
+# Restore only the original CYE5 subtree label before any provider starts;
+# this changes SELinux metadata, not trust-store contents or counter values.
+restorecon -RF /mnt/vendor/efs/tee || fail tee_context_restore
+ls -Zd /mnt/vendor/efs/tee | grep -q 'u:object_r:tee_efs_file:s0' || fail tee_context_readback
+setprop gta9wifi.crypto.storage_labels_ready 1
+# Stock CYE5 uses a second, distinct filesystem at /efs. It is not an alias of
+# /mnt/vendor/efs. Preserve existing contents and prohibit journal replay.
+test -b /dev/block/by-name/sec_efs || fail missing_sec_efs
+test "$(readlink -f /dev/block/by-name/sec_efs)" != "$(readlink -f /dev/block/by-name/efs)" || fail aliased_efs_partitions
+mkdir -p /efs
+if ! grep -q ' /efs ' /proc/mounts; then
+    mount -t ext4 -o ro,noload /dev/block/by-name/sec_efs /efs || fail sec_efs_mount
+fi
+grep -q ' /efs ext4 ro,' /proc/mounts || fail sec_efs_not_readonly
+mkdir -p /dev/socket/iwt/ca
+chown system:system /dev/socket/iwt /dev/socket/iwt/ca
+chmod 0770 /dev/socket/iwt /dev/socket/iwt/ca
+for node in /dev/tzdev /dev/tziwsock /dev/tziwshmem; do
+    test -c "$node" || fail missing_tee_device
+    chown system:system "$node"
+    chmod 0666 "$node"
+done
+# The original KeyMint provider runs as system, not recovery's root UID. Its
+# GRDM transport otherwise inherits root:root 0600 and cannot initialize.
+test -c /dev/grdm || fail missing_grdm_device
+chown system:system /dev/grdm
+chmod 0660 /dev/grdm
+# KeyMint must receive the installed Android's OS/patch tuple, not TWRP's API
+# baseline. The CYE5 Android system is15 / April2025; no future dates or SDK
+# spoofing are used. Boot header, AVB indexes and Samsung metadata stay intact.
+/system/bin/resetprop -n ro.build.version.release 15 || fail profile_override
+/system/bin/resetprop -n ro.vendor.build.security_patch 2025-04-01 || fail vendor_patch
+test "$(getprop ro.build.version.release)" = 15 || fail profile_readback
+setprop gta9wifi.crypto.profile_ready 1

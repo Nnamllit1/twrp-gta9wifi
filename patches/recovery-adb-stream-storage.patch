@@ -1,0 +1,80 @@
+--- a/partitionmanager.cpp
++++ b/partitionmanager.cpp
+@@ -1002,9 +1002,11 @@
+ 		return true;
+ 	}
+ backup_error:
+-	Clean_Backup_Folder(part_settings->Backup_Folder);
+-	TWFunc::copy_file("/tmp/recovery.log", backup_log, 0644);
+-	tw_set_default_metadata(backup_log.c_str());
++	if (!part_settings->adbbackup) {
++		Clean_Backup_Folder(part_settings->Backup_Folder);
++		TWFunc::copy_file("/tmp/recovery.log", backup_log, 0644);
++		tw_set_default_metadata(backup_log.c_str());
++	}
+ 	TWFunc::SetPerformanceMode(false);
+ 	return false;
+ }
+@@ -1099,7 +1101,7 @@
+ 
+ 	Update_System_Details();
+ 
+-	if (!Mount_Current_Storage(true))
++	if (!adbbackup && !Mount_Current_Storage(true))
+ 		return false;
+ 
+ 	DataManager::GetValue(TW_SKIP_DIGEST_GENERATE_VAR, skip_digest);
+@@ -1173,13 +1175,15 @@
+ 
+ 	gui_msg(Msg("total_partitions_backup= * Total number of partitions to back up: {1}")(partition_count));
+ 	gui_msg(Msg("total_backup_size= * Total size of all data: {1}MB")(total_bytes / 1024 / 1024));
+-	storage = Find_Partition_By_Path(DataManager::GetCurrentStoragePath());
+-	if (storage != NULL) {
+-		free_space = storage->Free;
+-		gui_msg(Msg("available_space= * Available space: {1}MB")(free_space / 1024 / 1024));
+-	} else {
+-		gui_err("unable_locate_storage=Unable to locate storage device.");
+-		return false;
++	if (!adbbackup) {
++		storage = Find_Partition_By_Path(DataManager::GetCurrentStoragePath());
++		if (storage != NULL) {
++			free_space = storage->Free;
++			gui_msg(Msg("available_space= * Available space: {1}MB")(free_space / 1024 / 1024));
++		} else {
++			gui_err("unable_locate_storage=Unable to locate storage device.");
++			return false;
++		}
+ 	}
+ 
+ 	DataManager::GetValue(TW_DISABLE_FREE_SPACE_VAR, disable_free_space_check);
+@@ -1199,12 +1203,9 @@
+ 
+ 	gui_msg("backup_started=[BACKUP STARTED]");
+ 
+-	int is_decrypted = 0;
+-	int is_encrypted = 0;
+-
+-	DataManager::GetValue(TW_IS_DECRYPTED, is_decrypted);
+-	DataManager::GetValue(TW_IS_ENCRYPTED, is_encrypted);
+-	if (!adbbackup || (!is_encrypted || (is_encrypted && is_decrypted))) {
++	// ADB streams go directly to the host, not the selected local storage.
++	// Individual file partitions still require their own successful mount.
++	if (!adbbackup) {
+ 		gui_msg(Msg("backup_folder= * Backup Folder: {1}")(part_settings.Backup_Folder));
+ 		if (!TWFunc::Recursive_Mkdir(part_settings.Backup_Folder)) {
+ 			gui_err("fail_backup_folder=Failed to make backup folder.");
+@@ -1279,9 +1280,11 @@
+ 	Update_System_Details();
+ 	UnMount_Main_Partitions();
+ 	gui_msg(Msg(msg::kHighlight, "backup_completed=[BACKUP COMPLETED IN {1} SECONDS]")(total_time)); // the end
+-	string backup_log = part_settings.Backup_Folder + "/recovery.log";
+-	TWFunc::copy_file("/tmp/recovery.log", backup_log, 0644);
+-	tw_set_default_metadata(backup_log.c_str());
++	if (!adbbackup) {
++		string backup_log = part_settings.Backup_Folder + "/recovery.log";
++		TWFunc::copy_file("/tmp/recovery.log", backup_log, 0644);
++		tw_set_default_metadata(backup_log.c_str());
++	}
+ 
+ 	if (part_settings.adbbackup) {
+ 		if (twadbbu::Write_ADB_Stream_Trailer() == false) {

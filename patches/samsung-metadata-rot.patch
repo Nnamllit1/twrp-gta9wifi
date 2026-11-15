@@ -1,0 +1,21 @@
+diff --git a/KeyStorage.cpp b/KeyStorage.cpp
+--- a/KeyStorage.cpp
++++ b/KeyStorage.cpp
+@@ -624,6 +624,17 @@ bool retrieveKey(const std::string& dir, const KeyAuthentication& auth, KeyBuffer* k
+         Keymaster keymaster;
+         if (!keymaster) return false;
+         km::AuthorizationSet keyParams = beginParams(appId);
++        // Samsung CYE5 vold requests this vendor bool for metadata-key opens.
++        // Keep it opt-in and confined to existing metadata keys. The original
++        // KeyMint/TEE still authenticates the blob; no TA or key is modified.
++        if (android::base::GetBoolProperty("ro.crypto.samsung_metadata_rot", false) &&
++            dir == "/metadata/vold/metadata_encryption/key") {
++            km::KeyParameter param;
++            param.tag = static_cast<km::Tag>(0x700008fd);
++            param.value = km::KeyParameterValue::make<km::KeyParameterValue::boolValue>(true);
++            keyParams.push_back(param);
++            LOG(INFO) << "Using Samsung metadata-key operation parameter";
++        }
+         if (!decryptWithKeymasterKey(keymaster, dir, keyParams, encryptedMessage, key))
+             return false;
+     } else {

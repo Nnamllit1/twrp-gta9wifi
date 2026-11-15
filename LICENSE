@@ -1,0 +1,12 @@
+License scope
+
+Original device configuration, input/build/packaging tools and diagnostics in
+this repository are licensed under Apache License 2.0 unless an individual file
+states another license. The full text is in LICENSES/Apache-2.0.txt.
+
+Patches to TeamWin recovery are modifications of GPL-3.0-or-later sources and
+retain that license. TeamWin copyright and license text are reproduced in
+LICENSES/TeamWin-NOTICE.txt. Patches to Android platform libraries retain their
+original Apache-2.0 notices and terms. Existing notices are not superseded.
+
+Proprietary firmware/build inputs are not included or licensed by this project.
