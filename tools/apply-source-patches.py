@@ -23,6 +23,12 @@ REQUIRED = (
      'recovery-adb-stream-storage.patch'),
     ('bootable/recovery', '5c3d206a5eeb3d446bcda8248a405a4b278bab5c',
      'recovery-full-battery-indicator.patch'),
+    ('bootable/recovery', '5c3d206a5eeb3d446bcda8248a405a4b278bab5c',
+     'recovery-cli-serialization.patch'),
+    ('bootable/recovery', '5c3d206a5eeb3d446bcda8248a405a4b278bab5c',
+     'recovery-cli-restore-digests.patch'),
+    ('bootable/recovery', '5c3d206a5eeb3d446bcda8248a405a4b278bab5c',
+     'recovery-brightness-settings.patch'),
 )
 EXPERIMENTAL_BINDER = (
     'frameworks/native', '89c808424fbce9e40c0d4e0d1920b3c64a191b7f',

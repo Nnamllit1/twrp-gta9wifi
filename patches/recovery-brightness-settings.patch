@@ -1,0 +1,16 @@
+diff --git a/data.cpp b/data.cpp
+--- a/data.cpp
++++ b/data.cpp
+@@ -1133,6 +1133,12 @@
+ #endif // ifdef TW_OEM_BUILD
+ 	PartitionManager.Mount_All_Storage();
+ 	update_tz_environment_variables();
++	// Preserve the saved percentage if a device corrects its raw brightness range.
++	// A previous build may have saved a value above the current hardware limit.
++	int max_brightness = GetIntValue("tw_brightness_max");
++	int brightness_pct = GetIntValue("tw_brightness_pct");
++	if (max_brightness > 0 && brightness_pct >= 0 && brightness_pct <= 100)
++		SetValue("tw_brightness", brightness_pct * max_brightness / 100);
+ 	TWFunc::Set_Brightness(GetStrValue("tw_brightness"));
+ }
+ 

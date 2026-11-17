@@ -1,0 +1,34 @@
+diff --git a/openrecoveryscript.cpp b/openrecoveryscript.cpp
+--- a/openrecoveryscript.cpp
++++ b/openrecoveryscript.cpp
+@@ -207,7 +207,8 @@
+ 				// Restore
+ 				DataManager::SetValue("tw_action_text2", gui_parse_text("{@restore}"));
+ 				PartitionManager.Mount_All_Storage();
+-				DataManager::SetValue(TW_SKIP_DIGEST_CHECK_VAR, 0);
++				// The UI variable means enable verification despite its legacy name.
++				DataManager::SetValue(TW_SKIP_DIGEST_CHECK_VAR, 1);
+ 				char folder_path[512], partitions[512];
+ 
+ 				string val = value, restore_folder, restore_partitions;
+@@ -290,7 +291,7 @@
+ 							Restore_List += "/sd-ext;";
+ 							gui_msg("sdext=SD-EXT");
+ 						} else if (value2[i] == 'M' || value2[i] == 'm') {
+-							DataManager::SetValue(TW_SKIP_DIGEST_CHECK_VAR, 1);
++							DataManager::SetValue(TW_SKIP_DIGEST_CHECK_VAR, 0);
+ 							gui_msg("digest_check_skip=Digest check skip is on");
+ 						}
+ 					}
+diff --git a/orscmd/orscmd.cpp b/orscmd/orscmd.cpp
+--- a/orscmd/orscmd.cpp
++++ b/orscmd/orscmd.cpp
+@@ -41,7 +41,7 @@
+ 	printf("Some common commands include:\n");
+ 	printf("  install /path/to/update.zip\n");
+ 	printf("  backup <SDCRBAEM> [backupname]\n");
+-	printf("  restore <SDCRBAEM> [backupname]\n");
++	printf("  restore <backup-folder> [SDCRBAEM]\n");
+ 	printf("  wipe <partition name>\n");
+ 	printf("  format data\n");
+ 	printf("  sideload\n");

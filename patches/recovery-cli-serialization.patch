@@ -1,0 +1,122 @@
+diff --git a/gui/action.cpp b/gui/action.cpp
+--- a/gui/action.cpp
++++ b/gui/action.cpp
+@@ -80,6 +80,7 @@
+ 
+ 	void threadActions(GUIAction *act);
+ 	void run(void *data);
++	bool isRunning();
+ private:
+ 	friend void *ActionThread_work_wrapper(void*);
+ 	struct ThreadData
+@@ -119,6 +120,19 @@
+ 		pthread_mutex_unlock(&m_act_lock);
+ 	}
+ 	pthread_mutex_destroy(&m_act_lock);
++}
++
++bool ActionThread::isRunning()
++{
++	pthread_mutex_lock(&m_act_lock);
++	bool running = m_thread_running;
++	pthread_mutex_unlock(&m_act_lock);
++	return running;
++}
++
++bool gui_action_is_running()
++{
++	return action_thread.isRunning() || cancel_thread.isRunning();
+ }
+ 
+ void ActionThread::threadActions(GUIAction *act)
+diff --git a/gui/gui.hpp b/gui/gui.hpp
+--- a/gui/gui.hpp
++++ b/gui/gui.hpp
+@@ -22,6 +22,7 @@
+ #include "twmsg.h"
+ 
+ void set_select_fd();
++bool gui_action_is_running();
+ 
+ void gui_msg(const char* text);
+ void gui_warn(const char* text);
+diff --git a/gui/gui.cpp b/gui/gui.cpp
+--- a/gui/gui.cpp
++++ b/gui/gui.cpp
+@@ -43,6 +43,7 @@
+ 
+ #include "rapidxml.hpp"
+ #include "objects.hpp"
++#include "gui.hpp"
+ #include "../data.hpp"
+ #include "../variables.h"
+ #include "../partitions.hpp"
+@@ -69,6 +70,7 @@
+ blanktimer blankTimer;
+ int ors_read_fd = -1;
+ static FILE* orsout = NULL;
++static TWAtomicInt ors_command_finished;
+ static float scale_theme_w = 1;
+ static float scale_theme_h = 1;
+ 
+@@ -435,12 +437,19 @@
+ 	set_select_fd();
+ }
+ 
+-// callback called after a CLI command was executed
++// The worker calls this before operation_end() and its remaining GUI actions.
++// Keep the client and listener blocked until the complete action batch exits.
+ static void ors_command_done()
+ {
++	ors_command_finished.set_value(1);
++}
++
++// Called only by the GUI loop with both action workers idle.
++static void finish_ors_command()
++{
++	ors_command_finished.set_value(0);
+ 	gui_set_FILE(NULL);
+-	fclose(orsout);
+-	orsout = NULL;
++	FILE* completed_output = orsout;
+ 
+ 	if (DataManager::GetIntValue("tw_page_done") == 0) {
+ 		// The select function will return ready to read and the
+@@ -449,6 +458,10 @@
+ 		close(ors_read_fd);
+ 		setup_ors_command();
+ 	}
++	orsout = NULL;
++	// Publish the replacement FIFOs before EOF lets the next client connect.
++	if (completed_output)
++		fclose(completed_output);
+ }
+ 
+ static void ors_command_read()
+@@ -473,7 +486,7 @@
+ 		if (DataManager::GetIntValue("tw_busy") != 0) {
+ 			fputs("Failed, operation in progress\n", orsout);
+ 			LOGINFO("Command cannot be performed, operation in progress.\n");
+-			fclose(orsout);
++			ors_command_done();
+ 		} else {
+ 			if (strlen(command) == 11 && strncmp(command, "dumpstrings", 11) == 0) {
+ 				gui_set_FILE(orsout);
+@@ -578,6 +591,8 @@
+ 	for (;;)
+ 	{
+ 		loopTimer(input_timeout_ms);
++		if (ors_command_finished.get_value() && !gui_action_is_running())
++			finish_ors_command();
+ 		FD_ZERO(&fdset);
+ 		timeout.tv_sec = 0;
+ 		timeout.tv_usec = 1;
+@@ -588,7 +603,7 @@
+ 			FD_SET(PartitionManager.uevent_pfd.fd, &fdset);
+ 		}
+ #ifndef TW_OEM_BUILD
+-		if (ors_read_fd > 0 && !orsout) { // orsout is non-NULL if a command is still running
++		if (ors_read_fd > 0 && !orsout && !gui_action_is_running()) { // orsout is non-NULL if a command is still running
+ 			FD_SET(ors_read_fd, &fdset);
+ 		}
+ #endif

@@ -30,7 +30,7 @@ They must not silently add bootloader, secure firmware, root vbmeta, super,
 userdata or metadata payloads. An old data archive restored after Android has
 advanced its keys needs a separate compatibility test.
 
-Keep private evidence under `.work/diagnostics` and reviewed reports with the
-corresponding release. Check raw logs for identifiers and secrets before sharing.
-Use a dedicated test dataset and verify its content; a completed progress bar
-alone does not establish a working backup and restore.
+Keep detailed test evidence private. Public bug reports should describe the
+operation and observed result without credentials, device identifiers or raw
+user data. Use a dedicated test dataset and verify its content; a completed
+progress bar alone does not establish a working backup and restore.

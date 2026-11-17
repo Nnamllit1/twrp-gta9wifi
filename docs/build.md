@@ -2,13 +2,7 @@
 
 Development source port targeting the original `X110XXU4CYE5` recovery kernel,
 device trees and kernel modules. SM-X115 and SM-X210 require separate validation.
-Recovery boot, root ADB and the NT36523D touchscreen have been tested on CYE5.
-Fresh encrypted data created under rooted CYE5 Android has passed no-lock
-decryption in 0.1.10 and PIN/pattern/password decryption with subsequent Android
-unlock in 0.1.12. Password testing also verified that the same CE test file was
-unreadable before entry and readable afterward within one boot. Data created
-under unrooted stock Android remains unsupported. Backups and other panel
-variants require separate device tests.
+See [support status](status.md) for supported features and current limitations.
 
 The recovery has its own kernel and bundled CYE5 hardware modules, so bringing
 up USB and touch does not require the installed Android vendor image. The data

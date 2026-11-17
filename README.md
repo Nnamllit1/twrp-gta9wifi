@@ -10,24 +10,31 @@ image a report refers to before applying its results to this port.
 
 ## What works
 
-Results apply to recovery **0.1.12**, **SM-X110**, **X110XXU4CYE5** and the
-**Novatek NT36523D** panel. A passing build alone does not establish device support.
+Results apply to **SM-X110**, **X110XXU4CYE5** and the **Novatek NT36523D** panel.
+Latest tested recovery: **0.1.13**.
 
-| Feature | Status | Scope |
-| --- | --- | --- |
-| Recovery boot, root ADB, touch | Working | Tested on the NT36523D panel variant |
-| CPU/SOC temperature, battery and charging indication | Working | Sensor display and full-battery charging indicator confirmed |
-| Data decryption | Working with prerequisites | Fresh encrypted data created under rooted CYE5; no lock, PIN, pattern and alphanumeric password tested, with normal Android unlock afterward |
-| Boot and Data backups | Creation verified | Boot image hash and synthetic files in the Data archive checked; restore not yet verified |
-| Recovery-only ZIP installation | Earlier updates verified | Guarded write/readback path; latest 0.1.12 was installed through AP |
-| Clock and timezone | Partly verified | Clock readable and timezone refresh works; persistent settings pending |
-| Sideload, MTP, encrypted backup and other maintenance operations | Untested | See the acceptance checklist for individual checks |
-| microSD and USB-OTG | Untested | No physical media available for validation |
-| Existing data created under unrooted stock Android | Unsupported | Metadata key rejected in the modified boot state |
-| Other models and panel variants | Untested | SM-X115 and SM-X210 are not covered by these results |
+| Feature | Status |
+| --- | --- |
+| Recovery boot, root ADB and touchscreen | Working |
+| CPU temperature, battery and charging indication | Working |
+| PIN, pattern and password decryption | Working on the tested setup |
+| Internal Boot, Recovery and Data backup/restore | Working; Data restore preserves internal media |
+| ADB image backup and Boot restore | Working |
+| Recovery ZIP installation and sideload | Working |
+| Clock, timezone and saved settings | Working |
+| Command-line operations | Working |
+| Screen colours, off/wake and brightness | Working |
+| MTP file transfer | Not working; use ADB |
+| Other maintenance operations | Not fully verified |
+| Password-encrypted backup archives | Not included |
+| microSD and USB-OTG | Untested |
+| Data created under unrooted stock Android | Not yet verified |
+| Other models and panel variants | Untested |
 
-The tested decryption scope is fresh data created under the rooted CYE5 boot
-baseline. Existing data created under unrooted stock Android is unsupported.
+Normal Android root is not an established requirement. The passing decryption
+tests used fresh data created during rooted CYE5 testing; removing root or
+using stock-created data needs separate validation. Recovery includes its own
+privileged shell and does not call Android's Magisk service to decrypt data.
 SM-X115, SM-X210 and other panel variants require separate device validation.
 See [support status](docs/status.md) for detailed limits and the
 [acceptance checklist](docs/validation.md) for completed and remaining tests.

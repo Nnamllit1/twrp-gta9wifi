@@ -63,6 +63,11 @@ BOARD_ROOT_EXTRA_FOLDERS := cache metadata vendor_dlkm odm_dlkm system_dlkm syst
 TW_THEME := portrait_hdpi
 TARGET_SCREEN_DENSITY := 213
 TARGET_RECOVERY_PIXEL_FORMAT := RGBX_8888
+# The MTK LED node reports 2047, but direct 32/230 comparisons confirm that
+# this panel's usable recovery control is the normal 8-bit range.
+TW_BRIGHTNESS_PATH := /sys/class/leds/lcd-backlight/brightness
+TW_MAX_BRIGHTNESS := 255
+TW_DEFAULT_BRIGHTNESS := 128
 RECOVERY_SDCARD_ON_DATA := true
 TW_HAS_DOWNLOAD_MODE := true
 TW_NO_REBOOT_BOOTLOADER := true
