@@ -2,7 +2,7 @@
 
 This community port targets Galaxy Tab A9 **SM-X110**, firmware
 **X110XXU4CYE5**, and the **Novatek NT36523D** touchscreen. Latest tested
-recovery: **0.1.13**. It is not an official TeamWin release.
+recovery: **0.1.14**. It is not an official TeamWin release.
 
 ## Working
 
@@ -11,12 +11,12 @@ recovery: **0.1.13**. It is not an official TeamWin release.
 - Internal Boot, Recovery and Data backup/restore, including internal-media
   preservation during Data restore.
 - ADB image backups, Boot image restore, recovery ZIP updates and sideload.
+- MTP file transfers with Windows.
 - Brightness, screen off/wake, battery/charging and CPU temperature.
 - Clock, timezone and saved settings.
 
 ## Limitations
 
-- **MTP file transfer is not working.** Use ADB for file transfer.
 - **Decryption without Android root is not yet verified.** The passing setup
   used data created during rooted CYE5 testing. Recovery does not call Android's
   Magisk service; that test setup does not establish a root requirement.

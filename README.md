@@ -11,7 +11,7 @@ image a report refers to before applying its results to this port.
 ## What works
 
 Results apply to **SM-X110**, **X110XXU4CYE5** and the **Novatek NT36523D** panel.
-Latest tested recovery: **0.1.13**.
+Latest tested recovery: **0.1.14**.
 
 | Feature | Status |
 | --- | --- |
@@ -24,7 +24,7 @@ Latest tested recovery: **0.1.13**.
 | Clock, timezone and saved settings | Working |
 | Command-line operations | Working |
 | Screen colours, off/wake and brightness | Working |
-| MTP file transfer | Not working; use ADB |
+| MTP file transfer | Working with Windows |
 | Other maintenance operations | Not fully verified |
 | Password-encrypted backup archives | Not included |
 | microSD and USB-OTG | Untested |
